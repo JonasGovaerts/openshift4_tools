@@ -26,12 +26,14 @@ Script is based on the latest documentation of RedHat (https://docs.openshift.co
 ## Usage
 
 ** List packages**
+
 When you don't know which packages you want to mirror, you can use the script with following parameters to extract a list from the operator index.
 ```
 ./mirror -list -operator <upstream-registry-address>/<upstream-registry-repository>/<image-name>:<image-tag> -creds </path/to/authentication/file>
 ```
 
 **Prune index and mirror images**
+
 If you know which packages you want to mirror, you can use the script with following parameters.
 ```
 ./mirror -operator <upstream-registry-address>/<upstream-registry-repository>/<image-name>:<image-tag> -packages <list,of,packages> -local-operator  <local-registry-address>/<local-registry-repository>/<image-name>:<image-tag> -creds </path/to/authentication/file>
