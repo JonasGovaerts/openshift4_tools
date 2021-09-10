@@ -25,7 +25,7 @@ Script is based on the latest documentation of RedHat (https://docs.openshift.co
 
 ## Usage
 
-** List packages**
+**List packages**
 
 When you don't know which packages you want to mirror, you can use the script with following parameters to extract a list from the operator index.
 ```
