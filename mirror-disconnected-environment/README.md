@@ -3,10 +3,10 @@ Go script to mirror operator images for catalog indexes to a local registry. Thi
 Script is based on the latest documentation of RedHat (https://docs.openshift.com/container-platform/latest/operators/admin/olm-restricted-networks.html#olm-pruning-index-image_olm-restricted-networks)
 
 ## Requirements
-- `latest OC binary (https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/latest/openshift-client-linux.tar.gz)
-- `latest OPM binary (https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/latest/opm-linux.tar.gz)
--  Podman v1.9.3+
--  Access to a registry that supports multi arch images
+- latest OC binary (https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/latest/openshift-client-linux.tar.gz)
+- latest OPM binary (https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/latest/opm-linux.tar.gz)
+- Podman v1.9.3+
+- Access to a registry that supports multi arch images
 
 
 ### Parameters
