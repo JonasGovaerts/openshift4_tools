@@ -5,6 +5,10 @@ import (
 	"os/exec"
 	log "github.com/sirupsen/logrus"
 	"flag"
+	"path/filepath"
+	"os"
+	"bufio"
+	"strings"
 )
 
 
@@ -95,6 +99,118 @@ func listOperatorPackages(operatorIndex string, credentialsFile string){
 
 }
 
+func pushLocalOperatorIndex(localOperatorIndex string, credentialsFile string){
+	log.Info("Pushing ", localOperatorIndex)
+
+	app  := "podman"
+	arg0 := "push"
+	arg1 := "--authfile"
+	arg2 := credentialsFile
+	arg3 := localOperatorIndex
+
+	cmd := exec.Command(app, arg0, arg1, arg2, arg3)
+
+        stdout,stderr := cmd.CombinedOutput()
+
+        if stderr != nil {
+                log.Error("Failed to push image ",localOperatorIndex," error_mesage: ",string(stdout))
+                log.Debug("command executed: ",app," ", arg0," ", arg1," ", arg2," ", arg3)
+        } else {
+                log.Info("Successfully pushed ",localOperatorIndex)
+                log.Debug("Stdout output: ",string(stdout))
+        }
+
+
+}
+
+func generateManifests(localOperatorIndex string, credentialsFile string, mirrorLocation string){
+	log.Info("Generating manifests to mirror operator container images")
+	app  := "oc"
+	arg0 := "adm"
+	arg1 := "catalog"
+	arg2 := "mirror"
+	arg3 := "-a"
+	arg4 := credentialsFile
+	arg5 := localOperatorIndex
+	arg6 := mirrorLocation
+	arg7 := "--index-filter-by-os='.*'"
+	arg8 := "--manifests-only"
+
+	cmd := exec.Command(app, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8)
+
+        stdout,stderr := cmd.CombinedOutput()
+
+        if stderr != nil {
+                log.Error("Failed to generate manifests for ",localOperatorIndex," error_mesage: ",string(stdout))
+                log.Debug("command executed: ",app," ", arg0," ", arg1," ", arg2," ", arg3," ", arg4, " ", arg5," ",arg6," ",arg7," ",arg8)
+        } else {
+                log.Info("Successfully generated manifest files ",localOperatorIndex)
+                log.Debug("Stdout output: ",string(stdout))
+        }
+}
+
+func processManifests(credentialsFile string){
+	    root := "."
+	    var file string
+
+	    err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+
+	         if err != nil {
+
+	             log.Error(err)
+	             return nil
+	         }
+
+	         if !info.IsDir() && filepath.Ext(path) == ".txt" {
+			 file = path
+	         }
+
+	         return nil
+	     })
+
+	     if err != nil {
+	         log.Error(err)
+	     }
+
+	     file1, err1 := os.Open(string(file))
+	     if err1 != nil {
+		     log.Fatal(err1)
+	     }
+	    defer file1.Close()
+
+	    scanner := bufio.NewScanner(file1)
+	    for scanner.Scan(){
+		    line := strings.Split(scanner.Text(),"=")
+		    skopeoCopy(line[0],line[1],credentialsFile)
+	    }
+
+	    if err := scanner.Err(); err != nil {
+		    log.Fatal(err)
+	    }
+}
+
+func skopeoCopy(source string, destination string, credentialsFile string){
+	app  := "skopeo"
+        arg0 := "copy"
+	arg1 := "--all"
+        arg2 := "--authfile"
+        arg3 := credentialsFile
+	arg4 := "docker://"+source
+	arg5 := "docker://"+destination
+
+        cmd := exec.Command(app, arg0, arg1, arg2, arg3, arg4, arg5)
+
+        stdout,stderr := cmd.CombinedOutput()
+
+        if stderr != nil {
+                log.Error("Failed to copy ",source," to ",destination," error_mesage: ",string(stdout))
+                log.Debug("command executed: ",app," ", arg0," ", arg1," ", arg2," ", arg3," ", arg4, " ", arg5)
+        } else {
+                log.Info("Successfully copied ",source," to ", destination)
+                log.Debug("Stdout output: ",string(stdout))
+        }
+}
+
 func setLogLevel(logLevel string) {
 	log.SetFormatter(&log.JSONFormatter{})
 	switch logLevel {
@@ -110,6 +226,7 @@ func main() {
         packages                := flag.String("packages", "", "comma seperated list of packages that need to be mirrored")
         credentialsFile         := flag.String("creds", "", "location to authentication file")
         localOperatorIndex      := flag.String("local-operator", "", "target to push the modified operator index to")
+	mirrorLocation		:= flag.String("mirror-location","","location to mirror the operator images to")
 	logLevel		:= flag.String("loglevel", "debug" , "set log level: debug, info, warn")
         flag.Parse()
 
@@ -120,10 +237,14 @@ func main() {
 	log.Debug("Local operator index target: ",*localOperatorIndex)
 	log.Debug("packages: ",*packages)
 	log.Debug("location of authentication file: ",*credentialsFile)
+	log.Debug("Mirror location: ",*mirrorLocation)
 
 	if *listPackages {
 		listOperatorPackages(*operatorIndex,*credentialsFile)
 	} else {
-		pruneIndex(*operatorIndex,*packages,*localOperatorIndex)
+		//pruneIndex(*operatorIndex,*packages,*localOperatorIndex)
+		//pushLocalOperatorIndex(*localOperatorIndex, *credentialsFile)
+		//generateManifests(*localOperatorIndex,*credentialsFile, *mirrorLocation)
+		processManifests(*credentialsFile)
 	}
 }

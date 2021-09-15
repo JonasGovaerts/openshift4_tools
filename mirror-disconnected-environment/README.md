@@ -7,6 +7,7 @@ Script is based on the latest documentation of RedHat (https://docs.openshift.co
 - latest OPM binary (https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/latest/opm-linux.tar.gz)
 - Podman v1.9.3+
 - Access to a registry that supports multi arch images
+- Skopeo
 
 ## Parameters
 **`-help`** shows the help menu
