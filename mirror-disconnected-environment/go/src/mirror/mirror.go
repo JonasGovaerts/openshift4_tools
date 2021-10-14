@@ -242,9 +242,9 @@ func main() {
 	if *listPackages {
 		listOperatorPackages(*operatorIndex,*credentialsFile)
 	} else {
-		//pruneIndex(*operatorIndex,*packages,*localOperatorIndex)
-		//pushLocalOperatorIndex(*localOperatorIndex, *credentialsFile)
-		//generateManifests(*localOperatorIndex,*credentialsFile, *mirrorLocation)
+		pruneIndex(*operatorIndex,*packages,*localOperatorIndex)
+		pushLocalOperatorIndex(*localOperatorIndex, *credentialsFile)
+		generateManifests(*localOperatorIndex,*credentialsFile, *mirrorLocation)
 		processManifests(*credentialsFile)
 	}
 }
